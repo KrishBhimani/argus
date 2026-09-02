@@ -4,29 +4,30 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
-    "preview": "vite preview"
+    "dev": "next dev",
+    "build": "next build",
+    "postinstall": "fumadocs-mdx",
+    "preview": "npx serve out -l 4173"
   },
   "dependencies": {
     "@fontsource/ibm-plex-mono": "^5.2.0",
     "@fontsource/ibm-plex-sans": "^5.2.0",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "fumadocs-core": "^16.7.2",
+    "fumadocs-mdx": "^14.2.11",
+    "fumadocs-ui": "^16.7.2",
+    "next": "^16.2.1",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "remark-gfm": "^4.0.0"
   },
   "devDependencies": {
-    "@mdx-js/rollup": "^3.1.1",
-    "@tailwindcss/typography": "^0.5.20",
-    "@tailwindcss/vite": "^4.1.0",
-    "@types/mdx": "^2.0.14",
+    "@tailwindcss/postcss": "^4.1.0",
+    "@types/mdx": "^2.0.13",
+    "@types/node": "^22.0.0",
     "@types/react": "^19.1.0",
     "@types/react-dom": "^19.1.0",
-    "@vitejs/plugin-react": "^4.5.0",
-    "rehype-autolink-headings": "^7.1.0",
-    "rehype-slug": "^6.0.0",
-    "remark-gfm": "^4.0.1",
+    "postcss": "^8.5.0",
     "tailwindcss": "^4.1.0",
-    "typescript": "^5.9.0",
-    "vite": "^7.0.0"
+    "typescript": "^5.9.0"
   }
 }

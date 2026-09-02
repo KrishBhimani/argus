@@ -3,3 +3,7 @@ dist/
 *.log
 .DS_Store
 /docs/
+.next/
+out/
+.source/
+next-env.d.ts

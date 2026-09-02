@@ -1,0 +1,61 @@
+@import 'tailwindcss';
+@import 'fumadocs-ui/css/neutral.css';
+@import 'fumadocs-ui/css/preset.css';
+@import '@fontsource/ibm-plex-sans/latin-400.css';
+@import '@fontsource/ibm-plex-sans/latin-500.css';
+@import '@fontsource/ibm-plex-sans/latin-600.css';
+@import '@fontsource/ibm-plex-mono/latin-400.css';
+@import '@fontsource/ibm-plex-mono/latin-500.css';
+
+/* Argus design tokens, copied from argus-code/dashboard/src/styles.css. */
+@theme {
+  --color-bg-0: #0b0d11;
+  --color-bg-1: #10131a;
+  --color-bg-2: #161a22;
+  --color-bg-3: #1d222c;
+  --color-line: #232934;
+  --color-line-2: #2c3340;
+  --color-ink-0: #e8ecf1;
+  --color-ink-1: #9aa4b2;
+  --color-ink-2: #667184;
+  --color-accent: #f0883e;
+  --color-accent-ink: #ffb177;
+  --color-good: #0ca30c;
+  --color-warn: #fab219;
+  --color-crit: #d03b3b;
+  --color-crit-ink: #ff7a7a;
+  --font-sans: 'IBM Plex Sans', 'Segoe UI', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', 'Cascadia Code', Consolas, monospace;
+  --radius-sm: 3px;
+  --radius-md: 4px;
+}
+
+/* Fumadocs theme variables (HSL triplets) mapped onto the Argus palette. Dark only. */
+:root,
+.dark {
+  --fd-background: 225 21% 5%;
+  --fd-foreground: 213 25% 93%;
+  --fd-muted: 222 22% 8%;
+  --fd-muted-foreground: 214 12% 65%;
+  --fd-popover: 222 21% 9%;
+  --fd-popover-foreground: 213 25% 93%;
+  --fd-card: 222 22% 8%;
+  --fd-card-foreground: 213 25% 93%;
+  --fd-border: 219 20% 17%;
+  --fd-primary: 25 86% 59%;
+  --fd-primary-foreground: 25 60% 6%;
+  --fd-secondary: 222 21% 9%;
+  --fd-secondary-foreground: 213 25% 93%;
+  --fd-accent: 221 19% 13%;
+  --fd-accent-foreground: 213 25% 93%;
+  --fd-ring: 25 86% 59%;
+}
+
+body {
+  font-family: var(--font-sans);
+}
+code,
+pre,
+kbd {
+  font-family: var(--font-mono);
+}

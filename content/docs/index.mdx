@@ -1,0 +1,85 @@
+---
+title: "Getting started"
+description: "Install Argus, run it once, and read the dashboard footer."
+---
+
+Argus reads the transcripts Claude Code already writes, keeps them in a local SQLite archive, and serves a dashboard on `localhost`. Nothing is uploaded and nothing is sent anywhere.
+
+## What you need
+
+- Python 3.11 or newer.
+- A `~/.claude/` directory, which exists once you have used Claude Code at least once.
+
+Argus reads three things under `~/.claude/` and never writes there:
+
+| Path | What it is |
+| --- | --- |
+| `~/.claude/projects/<project>/<session-id>.jsonl` | One transcript file per session |
+| `~/.claude/projects/<project>/<session-id>/subagents/…` | Transcripts of sub-agents that session spawned |
+| `~/.claude/history.jsonl` | Every prompt you have typed, across projects |
+
+The Claude Code location is fixed at `~/.claude`. There is no flag or environment variable to point Argus somewhere else.
+
+## Install and run
+
+```sh
+pip install argus-code        # or: uv tool install argus-code
+argus start
+```
+
+`argus start` prints a few lines, then opens your browser at `http://127.0.0.1:4242`:
+
+| Line | Meaning |
+| --- | --- |
+| `Detected adapters: claude_code` | It found `~/.claude/` |
+| `Argus: ingesting recent sessions...` | Transcripts modified in the last 30 days are being read now, before the dashboard opens |
+| `Argus: foreground ingest complete (412/1183 files), starting watcher...` | Recent files done, older ones continue in the background, and a file watcher now picks up new activity as it happens |
+| `Loaded 1 detectors: ['tool_error_rate_spike']` | The alert detector is scheduled |
+| `Argus running at http://127.0.0.1:4242` | The dashboard is up |
+
+Press Ctrl+C to stop. Argus prints `Argus stopped.` and shuts down cleanly.
+
+<Callout title="If it exits immediately">
+`No adapter data found. Argus expects ~/.claude/ (Claude Code) to be present at minimum.` means there is no `~/.claude/` directory yet. Run Claude Code once, then try again. If the message mentions FTS5, your Python's SQLite was built without full-text search; use the official CPython build.
+</Callout>
+
+## The first run
+
+Argus splits your transcripts by file age. Files modified in the last 30 days are read in the foreground, and the browser opens only when they are done. The README quotes 5 to 10 seconds for a typical install. Everything older is read afterwards in a background thread while you already use the dashboard.
+
+The background pass also re-reads sessions that are missing derived data, for example tool calls or search segments. That pass is capped at 200 sessions per run, so a large archive converges over a few starts rather than one. If some older session looks incomplete, restart Argus once or twice.
+
+## Reading the sidebar footer
+
+The bottom of the dashboard sidebar has three monospace lines:
+
+1. `ingesting 412/1183` while transcripts are being read, then `tracking 180 sessions`. Before the first response it says `connecting…`.
+2. `pricing 2026-06-12`: the version of the price table used for cost estimates.
+3. `foreground watcher` when this `argus start` is doing the ingestion, or `argusd daemon` when the [background daemon](/argus/docs/daemon/) owns it.
+
+The dot next to the ARGUS wordmark is green when idle and amber and pulsing while ingesting.
+
+<Screenshot name="overview" alt="The Overview page after a first run: four tiles, tokens per day, models, and activity heatmaps" />
+
+## Where Argus keeps its data
+
+Everything lives in `~/.argus/`:
+
+| File | Purpose |
+| --- | --- |
+| `argus.db` (plus `-wal`, `-shm`) | The SQLite archive: sessions, turns, tool calls, alerts, and the optional search index |
+| `argusd.pid` | Present only while the background daemon runs |
+| `argusd.log` (plus `.1` to `.3`) | Daemon log, rotated at 1 MB |
+| `templates/<name>/` | Templates you saved with `argus claude template create` |
+
+Every command accepts `--data-dir <path>` to use a different directory. There are no environment variables and no config file; the only persisted setting, transcript indexing, is a row inside the database.
+
+<Callout>
+Argus never deletes rows from its archive. Claude Code rotates its own transcripts after a while, but a session Argus has already ingested stays in `argus.db` until you run `argus wipe`.
+</Callout>
+
+## Next steps
+
+- [CLI reference](/argus/docs/cli/): every command and flag.
+- [Search & privacy](/argus/docs/search/): turn on full-text search over transcripts, and what stays on your machine.
+- [The dashboard](/argus/docs/dashboard/): what every number and colour means.
