@@ -1,9 +1,12 @@
 import { LINKS } from '../content';
 import { Logo } from '../components/Logo';
-import { CompassIcon, GitHubIcon, PackageIcon } from '../components/Icons';
+import { BookIcon, CompassIcon, GitHubIcon, PackageIcon } from '../components/Icons';
+
+const BASE = import.meta.env.BASE_URL;
 
 const items = [
-  { href: '#tour', label: 'Tour', Icon: CompassIcon },
+  { href: BASE + 'docs/', label: 'Docs', Icon: BookIcon },
+  { href: BASE + '#tour', label: 'Tour', Icon: CompassIcon },
   { href: LINKS.github, label: 'GitHub', Icon: GitHubIcon },
   { href: LINKS.pypi, label: 'PyPI', Icon: PackageIcon },
 ] as const;
@@ -12,7 +15,7 @@ export function Nav() {
   return (
     <header className="sticky top-0 z-10 border-b border-line bg-bg-0/90 backdrop-blur">
       <nav className="mx-auto flex max-w-6xl items-center justify-between px-5 py-3">
-        <a href="#top" className="flex items-center gap-2 font-medium text-ink-0 hover:text-ink-0">
+        <a href={BASE + '#top'} className="flex items-center gap-2 font-medium text-ink-0 hover:text-ink-0">
           <Logo size={24} />
           Argus
         </a>
