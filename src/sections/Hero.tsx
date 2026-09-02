@@ -12,8 +12,7 @@ export function Hero() {
         <p className="mt-4 text-lg text-accent-ink md:text-xl">{hero.tagline}</p>
         <p className="mt-6 text-base text-ink-1 md:text-lg">{hero.lede}</p>
         <div className="mx-auto mt-8 max-w-xl text-left">
-          <InstallCommand lines={hero.install} />
-          <p className="mt-2 font-mono text-xs text-ink-2">{hero.installAlt}</p>
+          <InstallCommand variants={hero.install} />
         </div>
         <div className="mt-6 flex justify-center gap-3">
           <a

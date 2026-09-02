@@ -19,8 +19,10 @@ export const hero = {
   tagline: 'The observability console for Claude Code — local-first, permanent, and honest about cost.',
   lede:
     'Claude Code writes a detailed transcript of every session — every turn, every token, every tool call, every sub-agent it spawned — and then tells you almost nothing about it. Argus tails those files into a SQLite archive on your machine, prices each turn, and serves a dashboard that answers the questions the transcripts never do: what am I spending, where did it go, and which turn made it so?',
-  install: ['pipx install argus-code', 'argus start'] as const,
-  installAlt: 'or: uv tool install argus-code',
+  install: [
+    { label: 'pip', lines: ['pip install argus-code', 'argus start'] },
+    { label: 'uv', lines: ['uv tool install argus-code', 'argus start'] },
+  ] as const,
   image: shot('hero.png', 'The Argus overview — tokens, cost, sessions and tool error rate at a glance'),
 } as const;
 
