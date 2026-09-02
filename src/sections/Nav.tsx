@@ -1,5 +1,12 @@
 import { LINKS } from '../content';
 import { Logo } from '../components/Logo';
+import { CompassIcon, GitHubIcon, PackageIcon } from '../components/Icons';
+
+const items = [
+  { href: '#tour', label: 'Tour', Icon: CompassIcon },
+  { href: LINKS.github, label: 'GitHub', Icon: GitHubIcon },
+  { href: LINKS.pypi, label: 'PyPI', Icon: PackageIcon },
+] as const;
 
 export function Nav() {
   return (
@@ -10,9 +17,14 @@ export function Nav() {
           Argus
         </a>
         <ul className="m-0 flex list-none gap-5 p-0 text-sm">
-          <li><a href="#tour" className="text-ink-1">Tour</a></li>
-          <li><a href={LINKS.github} className="text-ink-1">GitHub</a></li>
-          <li><a href={LINKS.pypi} className="text-ink-1">PyPI</a></li>
+          {items.map(({ href, label, Icon }) => (
+            <li key={label}>
+              <a href={href} className="flex items-center gap-1.5 text-ink-1 hover:text-ink-0">
+                <Icon />
+                {label}
+              </a>
+            </li>
+          ))}
         </ul>
       </nav>
     </header>
