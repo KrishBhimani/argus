@@ -12,11 +12,13 @@ export const baseOptions: BaseLayoutProps = {
     ),
     url: '/',
   },
+  // `on: 'nav'` keeps these in the landing page header only; the docs sidebar would
+  // otherwise repeat them above the page tree.
   links: [
-    { text: 'Docs', url: '/docs/', active: 'nested-url' },
-    { text: 'Tour', url: '/#tour' },
-    { text: 'GitHub', url: 'https://github.com/KrishBhimani/argus-code', external: true },
-    { text: 'PyPI', url: 'https://pypi.org/project/argus-code/', external: true },
+    { text: 'Docs', url: '/docs/', active: 'nested-url', on: 'nav' },
+    { text: 'Tour', url: '/#tour', on: 'nav' },
+    { text: 'GitHub', url: 'https://github.com/KrishBhimani/argus-code', external: true, on: 'nav' },
+    { text: 'PyPI', url: 'https://pypi.org/project/argus-code/', external: true, on: 'nav' },
   ],
   githubUrl: 'https://github.com/KrishBhimani/argus-code',
   themeSwitch: { enabled: false },
