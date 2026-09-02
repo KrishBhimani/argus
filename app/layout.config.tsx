@@ -19,4 +19,5 @@ export const baseOptions: BaseLayoutProps = {
     { text: 'PyPI', url: 'https://pypi.org/project/argus-code/', external: true },
   ],
   githubUrl: 'https://github.com/KrishBhimani/argus-code',
+  themeSwitch: { enabled: false },
 };

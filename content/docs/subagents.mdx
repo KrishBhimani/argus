@@ -29,13 +29,13 @@ The header shows `#N`, an **OK** or `3 ERR` pill, the model, a copy-id chip, and
 
 Five tiles mirror the parent's: tokens with cache-read share, estimated cost, turns with tool calls, duration, and tool errors.
 
-**Task given** is the first user message the sub-agent received, which is the instruction the parent wrote for it. This needs [transcript indexing](/argus/docs/search/); without it the panel reads "Not available — enable transcript indexing in Settings to keep sub-agent prompts."
+**Task given** is the first user message the sub-agent received, which is the instruction the parent wrote for it. This needs [transcript indexing](/docs/search/); without it the panel reads "Not available — enable transcript indexing in Settings to keep sub-agent prompts."
 
 **Tools used** is the same bar-with-error-overlay form as the parent's tool mix. **Sub-agent shape** is the same tokens-per-turn minimap, and clicking a column jumps into the full timeline of that sub-agent, which follows below.
 
 ## Sub-agents in the aggregate
 
-The [Tools](/argus/docs/tools/) page has a **Sub-agent invocations** panel that counts delegations by sub-agent type across every session in the window.
+The [Tools](/docs/tools/) page has a **Sub-agent invocations** panel that counts delegations by sub-agent type across every session in the window.
 
 <Callout>
 After turning indexing on, "Task given" for older sessions fills in during the backfill, which re-reads sub-agent files together with their parent, 200 sessions per start. It may take a restart or two.

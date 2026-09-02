@@ -17,15 +17,15 @@ The panel text: "Indexes Claude's replies, thinking and tool output into a local
 | **Disable indexing** | indexing is on | Turns it off. Existing segments stay on disk but are hidden from search |
 | **Clear indexed data** | segments exist | After confirming "Delete all indexed transcript segments? Your prompts and sessions are unaffected.", deletes every segment, compacts the database, and leaves indexing off |
 
-See [Search & privacy](/argus/docs/search/) for what a segment is and how the CLI commands differ.
+See [Search & privacy](/docs/search/) for what a segment is and how the CLI commands differ.
 
 <Callout type="warning" title="Read-only mode">
-When the [daemon](/argus/docs/daemon/) is running, the dashboard is a read-only viewer and all three buttons are refused by the server. The dashboard currently shows no error when that happens. Check the sidebar footer: if it reads `argusd daemon`, use `argus indexing enable` and friends from the terminal, or stop the daemon first.
+When the [daemon](/docs/daemon/) is running, the dashboard is a read-only viewer and all three buttons are refused by the server. The dashboard currently shows no error when that happens. Check the sidebar footer: if it reads `argusd daemon`, use `argus indexing enable` and friends from the terminal, or stop the daemon first.
 </Callout>
 
 ## Pricing
 
-One paragraph, no button: "Costs are estimated from pricing table 2026-06-12. Tokens are exact. Run `argus pricing refresh` to update (the only network call Argus ever makes, and only when you ask)." Refreshing is a terminal action; see the [CLI reference](/argus/docs/cli/#argus-pricing-refresh).
+One paragraph, no button: "Costs are estimated from pricing table 2026-06-12. Tokens are exact. Run `argus pricing refresh` to update (the only network call Argus ever makes, and only when you ask)." Refreshing is a terminal action; see the [CLI reference](/docs/cli/#argus-pricing-refresh).
 
 ## Export data
 

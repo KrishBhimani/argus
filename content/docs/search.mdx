@@ -18,7 +18,7 @@ When indexing is on, every content block of a transcript becomes one row in a `t
 
 Each segment is capped at 16 KB, so a huge build log does not bloat the index. Prompts from `~/.claude/history.jsonl` are stored separately, capped at 8 KB, regardless of the indexing flag.
 
-Indexing also feeds two dashboard features that otherwise stay empty: the **Task given** panel on the [Sub-agents](/argus/docs/subagents/) tab, which is the first user message sent to a sub-agent, and the inline error text under failing tool calls in the session [Timeline](/argus/docs/session/).
+Indexing also feeds two dashboard features that otherwise stay empty: the **Task given** panel on the [Sub-agents](/docs/subagents/) tab, which is the first user message sent to a sub-agent, and the inline error text under failing tool calls in the session [Timeline](/docs/session/).
 
 <Callout type="warning" title="Search returns nothing while indexing is off">
 The Transcripts page says only your prompts remain searchable when indexing is off. In practice the search endpoint returns zero results of every kind, prompts included, until you enable indexing.

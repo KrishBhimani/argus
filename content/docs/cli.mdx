@@ -45,10 +45,10 @@ argus start [-p|--port INTEGER] [--host TEXT] [--data-dir PATH] [--quiet] [--ver
 
 What it does, in order: opens or creates the database and applies migrations, checks that SQLite has FTS5, loads the newest price table, reads transcripts modified in the last 30 days, starts the file watcher and the detector scheduler, opens your browser, and serves. There is no flag to suppress the browser.
 
-If the [daemon](/argus/docs/daemon/) is running, `argus start` logs `argusd <pid> active — dashboard is read-only.` and serves as a viewer only: no ingestion, no detectors, and any change you try to make in Settings is refused.
+If the [daemon](/docs/daemon/) is running, `argus start` logs `argusd <pid> active — dashboard is read-only.` and serves as a viewer only: no ingestion, no detectors, and any change you try to make in Settings is refused.
 
 <Callout type="warning" title="--host 0.0.0.0">
-Binding to all interfaces logs this warning: `⚠ WARNING: bound to all network interfaces. Anyone on your LAN can read your prompt history, transcripts, and project paths.` It also switches off the loopback Host-header guard, because you are now reaching the dashboard by LAN address. There is no authentication. See [Search & privacy](/argus/docs/search/).
+Binding to all interfaces logs this warning: `⚠ WARNING: bound to all network interfaces. Anyone on your LAN can read your prompt history, transcripts, and project paths.` It also switches off the loopback Host-header guard, because you are now reaching the dashboard by LAN address. There is no authentication. See [Search & privacy](/docs/search/).
 </Callout>
 
 Errors you may see:
@@ -59,7 +59,7 @@ Errors you may see:
 
 ## argus indexing
 
-Transcript indexing powers full-text search and the sub-agent "Task given" text. It is off by default. The [Search & privacy](/argus/docs/search/) page explains what gets stored.
+Transcript indexing powers full-text search and the sub-agent "Task given" text. It is off by default. The [Search & privacy](/docs/search/) page explains what gets stored.
 
 | Command | What it does |
 | --- | --- |
@@ -143,4 +143,4 @@ Stop the daemon first with `argus daemon stop`. Nothing prevents a wipe while ar
 
 ## argus daemon
 
-`start`, `stop`, `restart`, `status` and `logs` manage argusd, the background process that keeps ingesting when no dashboard is open. They have their own page: [Daemon (argusd)](/argus/docs/daemon/).
+`start`, `stop`, `restart`, `status` and `logs` manage argusd, the background process that keeps ingesting when no dashboard is open. They have their own page: [Daemon (argusd)](/docs/daemon/).

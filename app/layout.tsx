@@ -10,7 +10,8 @@ export const metadata = {
 
 export default function Layout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    // Theme switching is disabled, so the `dark` class is set here rather than by next-themes.
+    <html lang="en" className="dark" suppressHydrationWarning>
       <head>
         <link rel="icon" type="image/svg+xml" href="/argus/favicon.svg" />
         <meta name="color-scheme" content="dark" />
