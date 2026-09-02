@@ -1,0 +1,39 @@
+The only page that changes anything. At `/settings`, under GOVERN. Two columns: controls on the left, status on the right.
+
+<Screenshot name="settings" alt="Settings: search indexing, pricing, export and wipe panels on the left; ingest status and parse errors on the right" />
+
+## Search indexing
+
+The panel text: "Indexes Claude's replies, thinking and tool output into a local FTS5 table so Transcripts search covers more than your prompts. Stored in `~/.argus/argus.db`; nothing leaves the machine." Its sub-label reads `on` or `off`, and a status line shows `41,690 segments · 682 sessions indexed`. While a backfill runs, an amber `backfilling 120/682` line appears; status refreshes every 4 seconds.
+
+| Button | Shown when | What it does |
+| --- | --- | --- |
+| **Enable indexing** | indexing is off | Turns indexing on and immediately starts a background backfill over sessions that have no segments yet |
+| **Disable indexing** | indexing is on | Turns it off. Existing segments stay on disk but are hidden from search |
+| **Clear indexed data** | segments exist | After confirming "Delete all indexed transcript segments? Your prompts and sessions are unaffected.", deletes every segment, compacts the database, and leaves indexing off |
+
+See [Search & privacy](/argus/docs/search/) for what a segment is and how the CLI commands differ.
+
+<Callout type="warning" title="Read-only mode">
+When the [daemon](/argus/docs/daemon/) is running, the dashboard is a read-only viewer and all three buttons are refused by the server. The dashboard currently shows no error when that happens. Check the sidebar footer: if it reads `argusd daemon`, use `argus indexing enable` and friends from the terminal, or stop the daemon first.
+</Callout>
+
+## Pricing
+
+One paragraph, no button: "Costs are estimated from pricing table 2026-06-12. Tokens are exact. Run `argus pricing refresh` to update (the only network call Argus ever makes, and only when you ask)." Refreshing is a terminal action; see the [CLI reference](/argus/docs/cli/#argus-pricing-refresh).
+
+## Export data
+
+**Download JSON** exports the full session rows. **Download CSV** exports ten columns per session: id, agent, started_at, ended_at, project_path, primary_model, total_cost_usd, total_fresh_input_tokens, total_output_tokens, turn_count. Both exclude sub-agent rows and sessions with no activity.
+
+## Wipe local data
+
+Text only: "To remove everything Argus stores, stop the server and delete `~/.argus/`. The dashboard never deletes your data on its own." The terminal equivalent is `argus wipe`, which also removes any templates you saved. There is no data-directory picker in the dashboard; the path is fixed unless you start Argus with `--data-dir`.
+
+## Ingest status
+
+A green **READY** or amber **INGESTING** pill, then `70/70 files · 0 pending`, the session count, and `foreground watcher` or `argusd daemon`. It refreshes every 4 seconds while ingesting and every 10 seconds when idle.
+
+## Parse errors
+
+Transcript lines that could not be parsed are skipped, and the surrounding lines still ingest. This panel lists up to 50 of them, most recent first: the file path as the summary, and the reason plus the truncated raw line when expanded. An empty panel reads "No parse errors." A few entries are normal after a Claude Code update that changes a line shape; a flood is worth reporting.
