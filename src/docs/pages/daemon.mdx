@@ -1,0 +1,78 @@
+By default the file watcher and the alert detectors run inside `argus start`. Close it and ingestion stops. argusd moves that work into a long-running background process so your archive stays current whether or not a dashboard is open.
+
+argusd does **not** serve the dashboard. Port 4242 is still bound only by `argus start`.
+
+## How the two fit together
+
+When argusd is running, `argus start` notices its PID file and becomes a read-only viewer of the database the daemon keeps fresh. It logs `argusd <pid> active — dashboard is read-only.`, the sidebar footer reads `argusd daemon`, and anything that would write, such as the indexing buttons in Settings, is refused with:
+
+> Argus is read-only because the argusd daemon is running. Manage indexing from the CLI (e.g. `argus indexing enable`) or stop the daemon with `argus daemon stop`.
+
+When argusd is not running, `argus start` ingests in-process as usual. If the PID file is left over from a daemon that died, `argus start` logs `Stale argusd PID file (process <pid> gone) — ignoring.` and carries on.
+
+<Callout>
+The dashboard currently shows no error when a Settings action is refused in read-only mode. If a click appears to do nothing, check the footer.
+</Callout>
+
+## Commands
+
+```
+argus daemon start    [--data-dir PATH]
+argus daemon stop     [--data-dir PATH]
+argus daemon restart  [--data-dir PATH]
+argus daemon status   [--data-dir PATH]
+argus daemon logs     [--data-dir PATH] [-n|--lines INTEGER] [-f|--follow]
+```
+
+### start
+
+Spawns a detached process and waits up to 3 seconds for it to write `~/.argus/argusd.pid`. Prints `argusd started, PID 12345`. If a daemon is already running it prints `daemon already running, PID 12345` and exits without error. On timeout it prints `daemon did not start within timeout — check ~/.argus/argusd.log` and exits with code 1.
+
+The child is started as `python -P -m argus.cli daemon run`, not through the `argus` console script, so it is unaffected by the directory you launched it from.
+
+### stop
+
+Prints `argusd stopped.` or `argusd is not running.` and removes the PID file either way, so it also cleans up a stale file.
+
+<Callout type="warning" title="Windows">
+On Windows, stop is an immediate hard kill. That is safe, because the daemon holds no critical state in memory, but no `argusd stopped.` line is written to the log file. On Linux and macOS the daemon gets SIGTERM and up to 10 seconds to exit before SIGKILL.
+</Callout>
+
+### restart
+
+Stop, then start. Prints `argusd restarted, PID 12345`.
+
+<Callout type="warning" title="Restart after upgrading">
+A running daemon holds the old code. After `pip install --upgrade argus-code` or the uv equivalent, run `argus daemon restart`.
+</Callout>
+
+### status
+
+Always exits with code 0. One of:
+
+```
+argusd: not running.
+argusd: not running (stale PID file for 12345).
+argusd: running (PID 12345, uptime 3h07m21s).
+Log: C:\Users\you\.argus\argusd.log
+```
+
+Uptime is measured from when the PID file was written, which is the moment the daemon registered itself.
+
+### logs
+
+Tails `~/.argus/argusd.log`, 40 lines by default. `--follow` polls every half second and survives log rotation, which a plain `tail -f` would not. Following starts at the end of the file. If there is no log yet it prints `No log file yet at <path>.`
+
+## What the daemon does
+
+- Runs the same ingestion as `argus start`: a first pass over transcripts, then a filesystem watcher that reads only the new bytes of a changed file after a 100 ms quiet period.
+- Runs the alert detectors once at startup, then every 10 minutes.
+- Survives a missing `~/.claude/`. It logs `No agent data found (~/.claude/ is missing). Staying up and watching for it — ingest starts automatically once it appears.` and checks every 30 seconds.
+- Writes `~/.argus/argusd.log` with full date stamps, rotating at 1,000,000 bytes with three backups.
+
+## Limits to know
+
+- **No auto-restart.** A crashed daemon stays down until you start it again. The next `start` or `stop` cleans up the stale PID file.
+- **No OS-native autostart yet.** The README lists an `argus install` command as a follow-up; it does not exist today. The hidden `argus daemon run` command is the blocking foreground form, meant for systemd, launchd or Windows Scheduled Tasks if you want to wire that up yourself.
+- **If argusd dies while a read-only dashboard is open**, the footer keeps saying `argusd daemon` and ingestion stays paused until you restart the dashboard, which then resumes ingesting in-process.
+- Idle cost is small. The README quotes roughly 40 to 70 MB of RAM and no idle CPU, since the watcher is event-driven and the scheduler wakes every 10 minutes.
