@@ -46,4 +46,12 @@ function Anchor(props: ComponentProps<'a'>) {
   return <a {...props} rel={external ? 'noreferrer' : props.rel} />;
 }
 
-export const mdxComponents = { Callout, Screenshot, a: Anchor };
+function Table(props: ComponentProps<'table'>) {
+  return (
+    <div className="my-6 overflow-x-auto">
+      <table {...props} className="my-0" />
+    </div>
+  );
+}
+
+export const mdxComponents = { Callout, Screenshot, a: Anchor, table: Table };
