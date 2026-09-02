@@ -1,3 +1,13 @@
+import { Nav } from './sections/Nav';
+import { Hero } from './sections/Hero';
+
 export function App() {
-  return <main className="p-8">Argus site scaffold</main>;
+  return (
+    <>
+      <Nav />
+      <main>
+        <Hero />
+      </main>
+    </>
+  );
 }
