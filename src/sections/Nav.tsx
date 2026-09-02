@@ -19,7 +19,7 @@ export function Nav() {
           <Logo size={24} />
           Argus
         </a>
-        <ul className="m-0 flex list-none gap-5 p-0 text-sm">
+        <ul className="m-0 flex list-none gap-3 p-0 text-sm sm:gap-5">
           {items.map(({ href, label, Icon }) => (
             <li key={label}>
               <a href={href} className="flex items-center gap-1.5 text-ink-1 hover:text-ink-0">
