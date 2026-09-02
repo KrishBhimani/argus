@@ -1,0 +1,23 @@
+{
+  "title": "Argus docs",
+  "pages": [
+    "---Start---",
+    "index",
+    "---CLI---",
+    "cli",
+    "daemon",
+    "search",
+    "---Dashboard---",
+    "dashboard",
+    "overview",
+    "sessions",
+    "session",
+    "subagents",
+    "models",
+    "trends",
+    "tools",
+    "alerts",
+    "transcripts",
+    "settings"
+  ]
+}

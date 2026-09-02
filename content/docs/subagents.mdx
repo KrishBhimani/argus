@@ -1,0 +1,42 @@
+---
+title: "Sub-agents"
+description: "Every sub-agent a session spawned: task given, tools, tokens, cost and timeline."
+---
+
+When a session delegates work with the `Task` or `Agent` tool, Claude Code writes each sub-agent's transcript to its own file. Argus keeps every one: what it was asked, which tools it used, what it cost, and its full timeline. Open a session and pick the **Sub-agents** tab; the tab label carries the count.
+
+<Screenshot name="subagents" alt="The Sub-agents tab: an agent strip and list on the left, the selected agent's tiles, task, tools and shape on the right" />
+
+## Where sub-agents come from
+
+For a session file `<id>.jsonl`, Argus looks in the sibling directory `<id>/subagents/`. Plain sub-agents are `subagents/*.jsonl`; workflow runs are `subagents/workflows/<run>/agent-*.jsonl`. Bookkeeping files like `journal.jsonl` are ignored, so they can never inflate the parent's totals.
+
+Each sub-agent becomes a full session row internally, with its own turns, tool calls, tokens and cost. Those totals are added into the parent at ingest, and every list and total in the dashboard excludes sub-agent rows so nothing is counted twice.
+
+If a session spawned none, the tab says "This session did not spawn sub-agents."
+
+## The left panel
+
+- **Agent strip.** One bar per sub-agent in spawn order, height by total tokens. Blue normally, red when that agent had a tool error, orange when selected. Hover for `#3 · 179.6k · 0 errors`. Click to select.
+- **Filter tasks** matches the task text or the model. The **Errors** chip keeps only agents with errors.
+- **Sort:** `order`, `tokens`, or `errors` with tokens as the tiebreak.
+- **Rows:** `#N`, a green check or a red ✕ with the error count, the task text or the model name in grey when no task was captured, a token bar relative to the largest agent, and the token total. The selected row has an orange rail.
+- **Keyboard:** Up and Down, or j and k, step through the visible list.
+
+## The right panel
+
+The header shows `#N`, an **OK** or `3 ERR` pill, the model, a copy-id chip, and **Open as its own session →**, which navigates to the sub-agent as a normal session on its Timeline tab.
+
+Five tiles mirror the parent's: tokens with cache-read share, estimated cost, turns with tool calls, duration, and tool errors.
+
+**Task given** is the first user message the sub-agent received, which is the instruction the parent wrote for it. This needs [transcript indexing](/docs/search/); without it the panel reads "Not available — enable transcript indexing in Settings to keep sub-agent prompts."
+
+**Tools used** is the same bar-with-error-overlay form as the parent's tool mix. **Sub-agent shape** is the same tokens-per-turn minimap, and clicking a column jumps into the full timeline of that sub-agent, which follows below.
+
+## Sub-agents in the aggregate
+
+The [Tools](/docs/tools/) page has a **Sub-agent invocations** panel that counts delegations by sub-agent type across every session in the window.
+
+<Callout>
+After turning indexing on, "Task given" for older sessions fills in during the backfill, which re-reads sub-agent files together with their parent, 200 sessions per start. It may take a restart or two.
+</Callout>

@@ -1,6 +1,6 @@
-# argus (landing page)
+# argus (site)
 
-The one-page site for [Argus](https://github.com/KrishBhimani/argus-code), the
+The landing page and docs for [Argus](https://github.com/KrishBhimani/argus-code), the
 local-first observability console for Claude Code. Live at
 <https://krishbhimani.github.io/argus/>.
 
@@ -8,21 +8,25 @@ local-first observability console for Claude Code. Live at
 
 ```sh
 npm install
-npm run dev        # http://localhost:5173/argus/
-npm run build      # type-check + production build into dist/
-npm run preview    # serve dist/ at http://localhost:4173/argus/
+npm run dev        # http://localhost:3000/argus/
+npm run build      # static export into out/
+npm run preview    # serve out/ (note: the site expects to live under /argus/)
 ```
 
 ## How it is put together
 
-- Vite + React + TypeScript + Tailwind v4. Design tokens are copied from the
-  argus-code dashboard so the page looks like the product.
-- **All copy lives in `src/content.ts`.** Section components render that data
-  and contain no prose. Every sentence is taken from the argus-code README;
-  when the README changes, update `content.ts` to match.
-- Screenshots are hotlinked from `argus-code/assets/` on GitHub. Regenerate
-  them there and this site updates with no change here.
-- Deploys to GitHub Pages on every push to `main` via
-  `.github/workflows/pages.yml`.
+- Next.js 16 static export + [Fumadocs](https://fumadocs.dev). Dark only, no search.
+  `basePath` is `/argus` and every page is emitted as `<path>/index.html`.
+- **Docs** are `content/docs/*.mdx`, ordered by `content/docs/meta.json`. Each page has
+  `title` and `description` frontmatter. Internal links are written as `/docs/<slug>/`
+  (Next prepends the base path). Every page ends with "Verified against argus-code
+  <version>" from `lib/site.ts`; bump it when the docs are re-checked against a release.
+- **Landing page** copy lives in `lib/content.ts`; section components in
+  `components/landing/`. Every sentence is trimmed argus-code README copy.
+- **Screenshots** are hotlinked from `argus-code/assets/screenshots/` on GitHub and
+  regenerated there with `scripts/screenshots/`. Nothing to update here.
+- Design tokens in `app/global.css` are copied from the argus-code dashboard and mapped
+  onto Fumadocs' `--color-fd-*` variables.
+- Deploys to GitHub Pages on every push to `main` via `.github/workflows/pages.yml`.
 
 No analytics, no third-party scripts.
