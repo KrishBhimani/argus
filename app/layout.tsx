@@ -3,9 +3,9 @@ import { RootProvider } from 'fumadocs-ui/provider/next';
 import './global.css';
 
 export const metadata = {
-  title: { default: 'Argus — see what Claude Code actually did', template: '%s · Argus docs' },
+  title: { default: 'Argus — see what Claude Code and Codex actually did', template: '%s · Argus docs' },
   description:
-    'See what Claude Code actually did. Local-first observability for every session: which tools ran, what each sub-agent was told, which turn blew the budget.',
+    'See what Claude Code and Codex actually did. Local-first observability for every session: which tools ran, what each sub-agent was told, which turn blew the budget.',
 };
 
 export default function Layout({ children }: { children: ReactNode }) {

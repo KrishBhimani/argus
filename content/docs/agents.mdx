@@ -1,0 +1,61 @@
+---
+title: "Supported agents"
+description: "Claude Code and OpenAI Codex: where Argus reads each one from, what it never opens, and how each is counted."
+---
+
+Argus reads two coding agents: **Claude Code** and **OpenAI Codex**. There is nothing to configure. On start it checks which agents' data exist on this machine and watches those. The startup log names them, for example `Detected adapters: claude_code, codex`.
+
+Every session is stored with its agent. Session ids look like `claude_code:<id>` or `codex:<id>`, and the dashboard labels each session with its agent and version (for example *Claude Code 2.1.94* or *Codex 0.159.2*). Once you have sessions from both, the [Sessions](/docs/sessions/) page gains an **Agent** filter and column.
+
+<Callout title="Started using an agent after Argus?">
+Argus decides which agents to watch when it starts. If you start using Codex (or Claude Code) while Argus is already running, restart it: `argus start` again, or `argus daemon restart` if you use the [daemon](/docs/daemon/).
+</Callout>
+
+## Claude Code
+
+| | Details |
+|---|---|
+| Reads from | `~/.claude/`: session transcripts under `projects/<project>/<session>.jsonl`, their sub-agent transcripts, and the prompt history file `history.jsonl` |
+| Location | Fixed at `~/.claude/`; there is no flag or environment variable to move it |
+| One turn | One API message (Claude Code writes a streamed reply as several lines; Argus folds them into one turn) |
+| Tool calls | Each `tool_use` block; an error is a `tool_result` the transcript flags as one |
+| Sub-agents | Each `Task` / `Agent` delegation's transcript, kept as its own sub-session under the parent |
+| Resume a session | `claude --resume <id>` (the id chip on a session page copies it) |
+
+Claude Code deletes its own session files after 30 days by default (`cleanupPeriodDays` in `~/.claude/settings.json`). Argus keeps every session it has ingested regardless.
+
+## OpenAI Codex
+
+| | Details |
+|---|---|
+| Reads from | `$CODEX_HOME` if set, otherwise `~/.codex/`, and only the session rollouts under `sessions/` and `archived_sessions/` |
+| Never opens | `auth.json` (cached credentials), `config.toml`, the SQLite state databases, memories, logs, plugins, skills and `history.jsonl` |
+| One turn | One model response (Codex's per-response usage record) |
+| Tool calls | Completed actions: `shell` commands, `apply_patch` file changes, MCP calls as `mcp__<server>__<tool>`, `web.search`, `view_image`, plus model calls such as `spawn_agent` and `send_message` |
+| Sub-agents | Each spawned agent's rollout, kept as a sub-session under the thread that spawned it |
+| Resume a session | `codex resume <id>` |
+
+A few things that behave differently from Claude Code:
+
+- **`CODEX_HOME` set to a folder that doesn't exist** means Codex is treated as absent. Argus does not fall back to `~/.codex/`.
+- **A tool call is an error only on an explicit failure signal**: a non-zero exit code or failed status for `shell`, a failed file change, or an MCP result marked as an error. Codex's internal `exec` and `wait` wrapper calls are not counted; the actions they ran are.
+- **One Codex thread can span several files.** When you edit and resend a turn, Codex continues the thread in a new rollout file; Argus merges them into one session. A rollout moved to `archived_sessions/` is recognised as the same session, so nothing is counted twice.
+- **Sub-agents at any depth** are listed under the top-level thread. Codex copies the parent's history into each child's file; Argus skips that copied part, so the parent's turns are not counted twice.
+- **Older Codex versions** that don't write per-response usage records are still counted, from their `token_count` events.
+- **Codex reasoning is never stored.** It is encrypted in the rollout anyway.
+- **WSL is a separate home.** Codex inside WSL uses the Linux `~/.codex`, not the Windows one. Argus reads the home of the system it runs on.
+
+### Costs
+
+Codex sessions are priced with OpenAI's published standard-tier API rates. That is an **API-equivalent estimate**: Codex usage on a ChatGPT plan is billed by subscription, not per token.
+
+<Callout type="warning" title="Known gaps">
+- `gpt-5-codex` is not on OpenAI's current price list, so its turns show tokens but **$0** cost.
+- The higher long-context rate (over 272K input tokens in one response) isn't applied.
+- Codex's own prompt history file (`history.jsonl`) isn't imported. Your prompts are still captured from the sessions themselves and are searchable through [Transcripts](/docs/transcripts/) once [indexing](/docs/search/) is on.
+- A sub-agent's progress appears when its parent thread next writes to its rollout.
+</Callout>
+
+## Privacy
+
+Both agents are read-only sources: Argus never writes to `~/.claude/` or the Codex home, and every read is checked to stay inside the agent's own folders, so a symlink can't redirect it elsewhere. Transcript text is only stored if you turn on [indexing](/docs/search/). Nothing leaves your machine.

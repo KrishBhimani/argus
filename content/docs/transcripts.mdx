@@ -3,14 +3,14 @@ title: "Transcripts search"
 description: "Searching prompts, replies, thinking and tool output with FTS5."
 ---
 
-Full-text search over everything you typed and everything Claude wrote. At `/search`, under SEARCH in the sidebar. Requires [transcript indexing](/docs/search/) to be on.
+Full-text search over everything you typed and everything your agents wrote, across Claude Code and Codex sessions. At `/search`, under SEARCH in the sidebar. Requires [transcript indexing](/docs/search/) to be on.
 
 <Screenshot name="search" alt="Transcripts search: query box, project filter, role chips, match summary with sparkline, and result rows" />
 
-The page describes itself: "Searches every prompt you typed and every transcript Claude wrote. 100% local — SQLite FTS5, no embeddings, no API calls."
+The page describes itself: "Searches every prompt you typed and every transcript your agents wrote. 100% local — SQLite FTS5, no embeddings, no API calls."
 
 <Callout type="warning" title="With indexing off, every search returns 'No matches.'">
-The banner shown when indexing is off says only your prompts remain searchable. The search endpoint actually returns nothing at all until indexing is enabled, prompts included. Use the **Enable indexing** button in the banner, which does the same as the one in Settings.
+The banner shown when indexing is off reads "Only your prompts are searchable. Enable transcript indexing to search agent replies and tool output." The search endpoint actually returns nothing at all until indexing is enabled, prompts included. Use the **Enable indexing** button in the banner, which does the same as the one in Settings.
 </Callout>
 
 ## Controls
@@ -21,10 +21,10 @@ The banner shown when indexing is off says only your prompts remain searchable. 
 
 | Chip | What it covers | Default |
 | --- | --- | --- |
-| Your prompts | Prompts from `~/.claude/history.jsonl`, across projects | on |
+| Your prompts | Claude Code prompts from `~/.claude/history.jsonl`, across projects | on |
 | Your replies | Your messages inside a session transcript | on |
-| Claude | Claude's replies | on |
-| Thinking | Extended-thinking blocks | off |
+| Assistant | The agent's replies | on |
+| Thinking | Claude Code's extended-thinking blocks (Codex reasoning is not stored) | off |
 | Tool output | What tools returned | off |
 
 - **Include slash commands** adds prompts like `/commit` to the results; they are excluded by default.
@@ -34,7 +34,7 @@ Results are capped at 200 per query. Ranking is BM25.
 
 ## Result rows
 
-Each row has a role pill on the left, **you** in green for prompts and your replies, **claude** in blue for Claude's replies, and the raw role in grey otherwise, with the local time beneath it. The middle is the snippet with matches highlighted in orange. Claude Code's own command wrappers, such as `<command-name>`, are stripped from the display but kept in the index. `+1,204 pasted chars` appears when the original prompt included pasted content. On the right, the shortened project path and an **Open session →** link when the hit can be tied to a session; prompts are linked to sessions by project and timestamp.
+Each row has a role pill on the left: a green **you** pill for prompts and your replies, a blue pill for assistant replies, and the raw role in grey otherwise, with the local time beneath it. The middle is the snippet with matches highlighted in orange. Claude Code's own command wrappers, such as `<command-name>`, are stripped from the display but kept in the index. `+1204 pasted chars` appears when the original prompt included pasted content. On the right, the shortened project path and an **Open session →** link when the hit can be tied to a session; prompts are linked to sessions by project and timestamp.
 
 Highlights come from FTS5 snippets and are rendered as text runs, never as HTML.
 

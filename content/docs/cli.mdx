@@ -27,7 +27,7 @@ argus
    └─ logs
 ```
 
-Every command except `pricing refresh` accepts `--data-dir <path>` (default `~/.argus`). `--help` works at every level. `argus search` still works as a hidden alias for `argus indexing` and prints a rename note.
+Every command accepts `--data-dir <path>` (default `~/.argus`). `--help` works at every level. `argus search` still works as a hidden alias for `argus indexing` and prints a rename note.
 
 ## argus start
 
@@ -43,7 +43,7 @@ argus start [-p|--port INTEGER] [--host TEXT] [--data-dir PATH] [--quiet] [--ver
 | `--quiet` | off | Log warnings only |
 | `--verbose` | off | Debug logging |
 
-What it does, in order: opens or creates the database and applies migrations, checks that SQLite has FTS5, loads the newest price table, reads transcripts modified in the last 30 days, starts the file watcher and the detector scheduler, opens your browser, and serves. There is no flag to suppress the browser.
+What it does, in order: opens or creates the database and applies migrations, checks that SQLite has FTS5, loads the newest price table (bundled or refreshed), detects which agents have data (Claude Code in `~/.claude/`, Codex in `$CODEX_HOME` or `~/.codex/`; see [Supported agents](/docs/agents/)), reads transcripts modified in the last 30 days, starts the file watcher and the detector scheduler, opens your browser, and serves. There is no flag to suppress the browser.
 
 If the [daemon](/docs/daemon/) is running, `argus start` logs `argusd <pid> active — dashboard is read-only.` and serves as a viewer only: no ingestion, no detectors, and any change you try to make in Settings is refused.
 
@@ -53,7 +53,7 @@ Binding to all interfaces logs this warning: `⚠ WARNING: bound to all network 
 
 Errors you may see:
 
-- `No adapter data found. Argus expects ~/.claude/ (Claude Code) to be present at minimum.` on stderr, exit code 1. Run Claude Code once first.
+- `No agent data found. Argus reads Claude Code from ~/.claude/ and Codex from $CODEX_HOME or ~/.codex/ -- run one of them first.` on stderr, exit code 1. Neither agent has any data yet; run Claude Code or Codex once first.
 - `Your Python's sqlite3 was built without FTS5 (ENABLE_FTS5). …` Use the official CPython distribution.
 - A port-in-use error comes straight from the web server. Pick another port with `--port`.
 
@@ -64,7 +64,7 @@ Transcript indexing powers full-text search and the sub-agent "Task given" text.
 | Command | What it does |
 | --- | --- |
 | `argus indexing status` | Prints `Status: ENABLED` or `disabled`, plus `Indexed: 12,345 segments across 678 sessions` |
-| `argus indexing enable` | Turns the flag on. Prints `Enabled. Run argus start to backfill — historical sessions will index in the background. New sessions are indexed automatically.` |
+| `argus indexing enable` | Turns the flag on. Prints ``Enabled. Run `argus start` to backfill — historical sessions will index in the background. New sessions are indexed automatically.`` |
 | `argus indexing disable` | Turns the flag off. Existing segments stay on disk but are hidden from search |
 | `argus indexing clear [-y]` | Deletes every indexed segment, compacts the database, and reports the space freed. Asks `Delete 12,345 indexed segments? [y/N]` unless you pass `-y` |
 
@@ -77,21 +77,23 @@ The CLI `enable` only flips the flag. Historical sessions are indexed on the nex
 ## argus pricing refresh
 
 ```
-argus pricing refresh
+argus pricing refresh [--data-dir PATH]
 ```
 
-No flags. This is the only command that ever touches the network. It fetches one file over HTTPS with a 30-second timeout:
+This is the only command that ever touches the network. It fetches one file over HTTPS with a 30-second timeout:
 
 ```
 https://raw.githubusercontent.com/BerriAI/litellm/main/model_prices_and_context_window.json
 ```
 
-It converts the per-token prices to dollars per million tokens, prints a summary like `Added: 12, Removed: 3, Changed: 41, Unchanged: 900` followed by one line per changed model, then asks `Apply? [y/N]`. If nothing differs it prints `Nothing to update.` and stops without asking. On yes, it writes a file named after today's date into the installed package's `pricing/` directory, and that file becomes the active table.
+It converts the per-token prices to dollars per million tokens, prints a summary like `Added: 12, Removed: 3, Changed: 41, Unchanged: 900` followed by one line per changed, added or removed model, then asks `Apply? [y/N]`. If nothing differs it prints `Nothing to update.` and stops without asking. On yes, it writes a file named after today's date (UTC) to `~/.argus/pricing/`, or `<data-dir>/pricing/`, and prints `Wrote <path>`. The installed package is never modified, so the refreshed table survives an upgrade and works on read-only installs such as `pipx` or `uv tool`.
 
-You never have to run it. A bundled table ships with each release. A model missing from the table is priced at zero until a table that knows it is loaded, at which point the affected sessions are re-priced on the next start.
+At startup Argus uses the newest table by date, comparing the bundled tables with the ones you refreshed. A refresh takes effect on the next start, and a newer table shipped by a later release is not shadowed by an old refresh. A running `argus start` or daemon keeps the table it loaded, so restart it after refreshing.
+
+You never have to run it. A bundled table ships with each release. A model missing from the table is priced at zero, and Argus logs a warning once per model naming it. Once a table that knows the model is loaded, the affected sessions are re-priced on the next start.
 
 <Callout type="warning">
-On a read-only install, for example some `pipx` or `uv tool` layouts, the final write fails with a Python traceback rather than a friendly message. Refreshing twice on the same day overwrites that day's file.
+If the file cannot be written, it prints `Could not write <path>: <error>` and exits with code 1. Refreshing twice on the same day overwrites that day's file.
 </Callout>
 
 ## argus claude init
@@ -120,11 +122,18 @@ argus claude template create NAME [--path PATH] [--all] [--data-dir PATH]
 
 `list` prints every template name, bundled and yours, one per line. Your templates live in `~/.argus/templates/<name>/` and shadow a bundled template of the same name.
 
-`create` snapshots a project's `.claude/` into a new user template. The name `default` is reserved. It asks `Include agents/? [Y/n]` for each subfolder unless you pass `--all`. It deliberately leaves out `history.jsonl`, any `*.local.json`, and anything that looks like a credential (`.env*`, `credentials.json`, names containing `secret`, `password`, `api-key`, or ending in `-token` or `_key`), and tells you so:
+`create` snapshots a project's `.claude/` into a new user template. The name `default` is reserved. It asks `Include agents/? [Y/n]` for each subfolder unless you pass `--all`. It copies file by file and never follows links. It deliberately leaves out:
+
+- `history.jsonl` at the top level.
+- Any `*.local.json`, which is machine-local config.
+- Anything that looks like a credential, at any depth: `.env*`, `credentials.json`, private keys and credential stores (`id_rsa`, `id_ed25519` and the like, `*.pem`, `*.key`, `*.p12`, `*.pfx`, `.netrc`, `.npmrc`, `.pypirc`, `.git-credentials`, `token.json`, `auth.json`), and names containing `credential`, `secret`, `password`, `api-key`, `apikey` or `service-account`, or ending in `-token`, `_token`, `-key` or `_key`.
+- Symlinks, junctions and other links, so nothing outside `.claude/` is pulled in through one.
+
+Everything except `history.jsonl` is listed when the snapshot is done:
 
 ```
-Left out of the template (looks like credentials): .credentials.json, .env
-Templates get copied into every project you scaffold, so secrets are never snapshotted.
+Left out of the template (credentials, machine-local config, or links out of the folder): .credentials.json, .env, settings.local.json
+Templates get copied into every project you scaffold, so these are never snapshotted.
 ```
 
 There is no delete command. Remove a template by deleting its folder under `~/.argus/templates/`.
@@ -135,7 +144,7 @@ There is no delete command. Remove a template by deleting its folder under `~/.a
 argus wipe [--data-dir PATH] [-y|--yes]
 ```
 
-Deletes the entire data directory after asking `Delete C:\Users\you\.argus? [y/N]`. That removes the archive of every session, the search index, alerts, the daemon's log, **and every template you saved** with `template create`.
+Deletes the entire data directory after asking `Delete C:\Users\you\.argus? [y/N]`. That removes the archive of every session, the search index, alerts, the daemon's log, any price tables you refreshed, **and every template you saved** with `template create`.
 
 <Callout type="warning">
 Stop the daemon first with `argus daemon stop`. Nothing prevents a wipe while argusd is running, and the daemon would keep writing into a directory that no longer exists.

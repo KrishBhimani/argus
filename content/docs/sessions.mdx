@@ -10,12 +10,13 @@ Every session you have ever run, at `/sessions`. Reach it from the sidebar, Ctrl
 ## The filter row
 
 1. **Text box**, "Filter by project or model". It also matches the session id, case-insensitively.
-2. **Project** dropdown, every distinct project path.
-3. **Model** dropdown.
-4. **Window chip**. Click it to cycle Last 24h → Last 7 days → Last 30 days → All time. The default is Last 30 days. This filter goes by session start date in local calendar days.
-5. **Has errors** chip, shown only when at least one session recorded a tool error.
-6. A summary on the right: `49 sessions · 1.99B tokens · $2,168`, summed over the filtered rows.
-7. **Export CSV**, which downloads every session with these columns: id, agent, started_at, ended_at, project_path, primary_model, total_cost_usd, total_fresh_input_tokens, total_output_tokens, turn_count. Cache tokens and duration are not in the CSV. Sub-agent rows and empty sessions are excluded.
+2. **Agent** dropdown, "Agent: all", **Claude Code** or **Codex**. It appears only when sessions from more than one agent have been recorded.
+3. **Project** dropdown, every distinct project path.
+4. **Model** dropdown.
+5. **Window chip**. Click it to cycle Last 24h → Last 7 days → Last 30 days → All time. The default is Last 30 days. This filter goes by session start date in local calendar days.
+6. **Has errors** chip, shown only when at least one session recorded a tool error.
+7. A summary on the right: `49 sessions · 1.99B tokens · $2,168`, summed over the filtered rows.
+8. **Export CSV**, which downloads every session with these columns: id, agent, started_at, ended_at, project_path, primary_model, total_cost_usd, total_fresh_input_tokens, total_output_tokens, turn_count. The id is Argus's own `<agent>:<session id>` form and agent is `claude_code` or `codex`. Cache tokens and duration are not in the CSV. Sub-agent rows and empty sessions are excluded.
 
 ## Analysis
 
@@ -30,10 +31,11 @@ A panel above the grid, open by default, with a Hide chip. Two views:
 | Column | Content |
 | --- | --- |
 | STARTED | Short date, or the time if today. Default sort, newest first |
+| AGENT | **Claude Code** or **Codex**. Shown only when more than one agent has sessions |
 | PROJECT | Shortened path; hover for the full path |
 | MODEL | The primary model, meaning the one with the most fresh input plus output tokens |
 | DURATION | Formatted duration. A session that is still running shows a green **live** pill |
-| TURNS | Number of assistant turns |
+| TURNS | Number of turns, including those of any sub-agents the session spawned. A Claude Code turn is one assistant message; a Codex turn is one model response |
 | ERRORS | `✕ 3` in red when tool calls failed, a muted `0` otherwise |
 | TOKENS | A bar relative to the largest session currently in view, and the value |
 | EST. COST | Estimated cost |
@@ -44,4 +46,6 @@ The footer reads `49 of 180` on the left and, on the right, a reminder that the 
 
 ## What a session is
 
-One transcript file under `~/.claude/projects/` is one session. Its project path is the working directory of its first assistant message. A session resumed with `claude --resume` appends to the same file, so it stays one row. Sub-agents spawned by a session are stored as their own rows internally but rolled into the parent's totals, and they never appear in this list; open the parent and use its [Sub-agents](/docs/subagents/) tab.
+For Claude Code, one transcript file under `~/.claude/projects/` is one session. Its project path is the working directory of its first assistant message. A session resumed with `claude --resume` appends to the same file, so it stays one row. For Codex, a session is one thread, which can span several rollout files; its project path is the working directory Codex recorded for the thread. [Supported agents](/docs/agents/) has the details for each.
+
+A Claude Code fork that starts with copies of its parent's messages counts those copies once, under the session they came from, so forked sessions do not double the parent's tokens, cost or turns. Sub-agents spawned by a session are stored as their own rows internally but rolled into the parent's totals, and they never appear in this list; open the parent and use its [Sub-agents](/docs/subagents/) tab.

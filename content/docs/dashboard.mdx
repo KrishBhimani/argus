@@ -20,7 +20,7 @@ The active page has a grey background and a 2px orange rail on its left. The Ale
 
 Next to the ARGUS wordmark is a status dot: green when idle, amber and pulsing while transcripts are being ingested.
 
-The footer has three monospace lines: `ingesting 412/1183` or `tracking 180 sessions`; `pricing 2026-06-12`, the price table in use; and `foreground watcher` or `argusd daemon`, which tells you whether this process or the [background daemon](/docs/daemon/) is doing the ingestion.
+The footer has three monospace lines: `ingesting 412/1183` or `tracking 180 sessions`; `pricing 2026-10-04`, the price table in use; and `foreground watcher` or `argusd daemon`, which tells you whether this process or the [background daemon](/docs/daemon/) is doing the ingestion.
 
 ## Jump anywhere with Ctrl+K
 
@@ -59,7 +59,7 @@ cost = fresh_input × input_rate
 
 Cache writes use two rates when the transcript records both the 5-minute and 1-hour tiers; otherwise the combined count is priced at the 5-minute rate. Cache reads have their own, much cheaper rate, which is why the dashboard shows cache-read share so often.
 
-The price table is a JSON file bundled with each release; the newest file by date wins. `argus pricing refresh` fetches LiteLLM's public table and writes a new dated file. Each session records the table version it was priced with, shown on the session's Overview tab as *Pricing version*.
+The price table is a JSON file bundled with each release. `argus pricing refresh` fetches LiteLLM's public table and, once you confirm, writes a new dated file to `~/.argus/pricing/` (under `--data-dir` if you pass one), outside the installed package so an upgrade does not wipe it. The newest file by date wins across the bundled and refreshed tables, so a newer table shipped with an upgrade is not shadowed by an old refresh. The bundled table covers current Claude models and the OpenAI models Codex uses, at standard-tier rates; a model it lacks, such as `gpt-5-codex`, is priced at zero (see below). Each session records the table version it was priced with, shown on the session's Overview tab as *Pricing version*.
 
 <Callout type="warning" title="Unknown models cost zero">
 A model missing from the price table is priced at zero for every turn. The tokens are still exact; only the dollar figure is missing, and the dashboard shows no badge for it. When a later table knows the model, those sessions are re-priced on the next start.

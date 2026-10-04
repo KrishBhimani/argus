@@ -9,7 +9,7 @@ The only page that changes anything. At `/settings`, under GOVERN. Two columns: 
 
 ## Search indexing
 
-The panel text: "Indexes Claude's replies, thinking and tool output into a local FTS5 table so Transcripts search covers more than your prompts. Stored in `~/.argus/argus.db`; nothing leaves the machine." Its sub-label reads `on` or `off`, and a status line shows `41,690 segments · 682 sessions indexed`. While a backfill runs, an amber `backfilling 120/682` line appears; status refreshes every 4 seconds.
+The panel text: "Indexes agent replies, thinking and tool output into a local FTS5 table so Transcripts search covers more than your prompts. Stored in `~/.argus/argus.db`; nothing leaves the machine." Its sub-label reads `on` or `off`, and a status line shows `41,690 segments · 682 sessions indexed`. While a backfill runs, an amber `backfilling 120/682` line appears; status refreshes every 4 seconds.
 
 | Button | Shown when | What it does |
 | --- | --- | --- |
@@ -25,11 +25,11 @@ When the [daemon](/docs/daemon/) is running, the dashboard is a read-only viewer
 
 ## Pricing
 
-One paragraph, no button: "Costs are estimated from pricing table 2026-06-12. Tokens are exact. Run `argus pricing refresh` to update (the only network call Argus ever makes, and only when you ask)." Refreshing is a terminal action; see the [CLI reference](/docs/cli/#argus-pricing-refresh).
+One paragraph, no button: "Costs are estimated from pricing table 2026-10-04. Tokens are exact. Run `argus pricing refresh` to update (the only network call Argus ever makes, and only when you ask)." The date is the version of the newest table Argus loaded; 2026-10-04 is the one bundled with v0.7.0. Refreshing is a terminal action; see the [CLI reference](/docs/cli/#argus-pricing-refresh).
 
 ## Export data
 
-**Download JSON** exports the full session rows. **Download CSV** exports ten columns per session: id, agent, started_at, ended_at, project_path, primary_model, total_cost_usd, total_fresh_input_tokens, total_output_tokens, turn_count. Both exclude sub-agent rows and sessions with no activity.
+**Download JSON** exports the full session rows. **Download CSV** exports ten columns per session: id, agent, started_at, ended_at, project_path, primary_model, total_cost_usd, total_fresh_input_tokens, total_output_tokens, turn_count. The agent column is `claude_code` or `codex`. Both exclude sub-agent rows and sessions with no activity.
 
 ## Wipe local data
 
@@ -41,4 +41,4 @@ A green **READY** or amber **INGESTING** pill, then `70/70 files · 0 pending`, 
 
 ## Parse errors
 
-Transcript lines that could not be parsed are skipped, and the surrounding lines still ingest. This panel lists up to 50 of them, most recent first: the file path as the summary, and the reason plus the truncated raw line when expanded. An empty panel reads "No parse errors." A few entries are normal after a Claude Code update that changes a line shape; a flood is worth reporting.
+Transcript lines that could not be parsed are skipped, and the surrounding lines still ingest. This panel lists up to 50 of them, most recent first: the file path as the summary, and the reason plus the truncated raw line when expanded. For Codex files the raw line is always left empty, so only the reason shows. An empty panel reads "No parse errors." A few entries are normal after a Claude Code or Codex update that changes a line shape; a flood is worth reporting.

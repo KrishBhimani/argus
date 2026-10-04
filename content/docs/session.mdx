@@ -9,7 +9,7 @@ Open a session by clicking a row on Sessions or Overview, picking it in Ctrl+K, 
 
 ## Top bar
 
-Breadcrumbs show the project. Next to them is a chip with the first eight characters of the session id; click it to copy the full id, which is what `claude --resume <id>` takes. Then the three tabs, the primary model, and the Claude Code version that wrote the transcript.
+Breadcrumbs show the project. Next to them is a chip with the first eight characters of the session id; click it to copy the agent's own full id. Its tooltip names the command that takes it: `claude --resume <id>` for Claude Code, `codex resume <id>` for Codex. Then the three tabs, the primary model, and a pill with the agent and the version that wrote the transcript, such as **Claude Code** or **Codex** followed by the version number, when the transcript records one.
 
 ## Five tiles
 
@@ -17,7 +17,7 @@ Breadcrumbs show the project. Next to them is a chip with the first eight charac
 | --- | --- |
 | **Tokens** | All four kinds. Below: the exact count and the cache-read share |
 | **Estimated cost** | Total, and cost per turn below |
-| **Turns** | Number of turns, with the total tool calls below. A `253 raw` note appears when the raw transcript count differs, see stitching below |
+| **Turns** | Number of this session's own turns, with the total tool calls below. A `253 raw` note appears when the session's stored turn count differs; that count also includes the turns of any sub-agents it spawned |
 | **Duration** | Start to last turn, or the word **live** if the session is still running. Local start time below |
 | **Tool errors** | Number of turns that contained at least one failing tool call. The whole tile turns red when non-zero, with `first at turn #7` below |
 
@@ -31,15 +31,17 @@ Below the columns is the cumulative estimated cost across turns, so a steep segm
 
 ## Resumed sessions are stitched
 
-Claude Code restarts its turn counter at zero every time a session is resumed, so a raw transcript can contain several turns numbered 0. Argus sorts all turns by timestamp and renumbers them 1 to n. Every `#N` on this page is that chronological number, not the raw one. On the server, each tool call is attached to exactly one turn, which fixed a case where a session resumed fifteen times appeared to have 78,000 tool calls instead of 351.
+Argus does not store turns as 1, 2, 3. Each turn keeps its position in the transcript file it came from, and a session can be built from more than one file: a Codex thread can span several rollout files, and rows ingested by Argus versions before 0.6.0 restarted their numbering at zero on each read. So the page sorts all turns by timestamp and renumbers them 1 to n. Every `#N` on this page is that chronological number, not the stored one. On the server, each tool call is attached to exactly one turn, which fixed a case where a session ingested in fifteen reads appeared to have 78,000 tool calls instead of 351.
+
+A Claude Code turn is one assistant message; a Codex turn is one model response, so a single Codex task can produce several turns. See [Supported agents](/docs/agents/).
 
 ## Overview tab
 
-**Session** lists project, primary model, Claude Code version, start and end in local time with the time zone, the four token totals, the pricing table version used, and the session id with a copy button.
+**Session** lists project, primary model, the agent's version (the row is labelled **Claude Code** or **Codex**), start and end in local time with the time zone, the four token totals, the pricing table version used, and the session id with a copy button.
 
 **Tool mix** has one bar per tool, most-called first. A red overlay on a bar is the error count on the same scale, followed by `✕ 3`.
 
-**Cache ratio per turn** shows one thin bar per turn, filled from the bottom by the share of that turn's tokens that came from cache. A drop means Claude paid full price for its context on that turn.
+**Cache ratio per turn** shows one thin bar per turn, filled from the bottom by the share of that turn's tokens that came from cache. A drop means the agent paid full price for its context on that turn.
 
 ## Timeline tab
 

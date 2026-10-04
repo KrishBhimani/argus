@@ -27,7 +27,7 @@ This is not the list price. It blends fresh input, output, cache reads and cache
 
 ## Model share by day, or by week
 
-The title follows the window: days for `24h`, `7d` and `30d`, the last 26 weeks for `all`. Each bucket shows the percentage of that period's fresh input plus output tokens per model, top five plus Other. Three views on the right:
+The title follows the window: days for `24h`, `7d` and `30d`, the last 26 weeks for `all`. Days are your local calendar dates. Each bucket shows the percentage of that period's fresh input plus output tokens per model, top five plus Other. Three views on the right:
 
 - **lines:** normalised shares on a fixed 0 to 100 percent axis.
 - **columns:** stacked columns normalised per period; the hover card still shows the raw token counts alongside the percent.
@@ -37,7 +37,7 @@ The title follows the window: days for `24h`, `7d` and `30d`, the last 26 weeks 
 
 | Column | Meaning |
 | --- | --- |
-| model | Canonical model name; a date suffix like `-20250929` is stripped before pricing |
+| model | Canonical model name. For Claude Code a date suffix like `-20250929` is stripped before pricing; Codex model names are used as recorded |
 | tokens | All four kinds |
 | est. cost | Priced total |
 | $ / M tokens | The price-efficiency figure above; `—` for zero tokens |
