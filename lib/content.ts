@@ -15,10 +15,10 @@ export const LINKS = {
 } as const;
 
 export const hero = {
-  title: 'See what Claude Code actually did.',
-  tagline: 'The observability console for Claude Code — local-first, permanent, and honest about cost.',
+  title: 'See what your coding agents actually did.',
+  tagline: 'The observability console for Claude Code and Codex — local-first, permanent, and honest about cost.',
   lede:
-    'Claude Code writes a detailed transcript of every session — every turn, every token, every tool call, every sub-agent it spawned — and then tells you almost nothing about it. Argus tails those files into a SQLite archive on your machine, prices each turn, and serves a dashboard that answers the questions the transcripts never do: what am I spending, where did it go, and which turn made it so?',
+    'Claude Code and OpenAI Codex write a detailed transcript of every session — every turn, every token, every tool call, every sub-agent they spawned — and then tell you almost nothing about it. Argus tails those files into a SQLite archive on your machine, prices each turn, and serves a dashboard that answers the questions the transcripts never do: what am I spending, where did it go, and which turn made it so?',
   install: [
     { label: 'pip', lines: ['pip install argus-code', 'argus start'] },
     { label: 'uv', lines: ['uv tool install argus-code', 'argus start'] },
@@ -35,12 +35,12 @@ export const pillars = [
   {
     title: 'It watches for you.',
     body:
-      'Detectors re-check your data every 10 minutes against historical baselines and file alerts — a tool whose error rate doubles gets flagged the day it breaks, not when you happen to notice.',
+      'Detectors re-check your data every 10 minutes against historical baselines and file alerts — a tool whose error rate doubles, a project whose weekly spend triples, a prompt cache that quietly stopped hitting — all flagged the day it happens, not when you happen to notice.',
   },
   {
     title: 'It accumulates.',
     body:
-      'Claude Code rotates its own logs, so tools that read what is on disk see a sliding month. Once Argus has ingested a session the row stays forever; a few months in, Argus remembers sessions Claude has already forgotten.',
+      'Claude Code rotates its own logs, so tools that read what is on disk see a sliding month. Once Argus has ingested a session the row stays forever; a few months in, Argus remembers sessions your agents have already forgotten.',
   },
 ] as const;
 
@@ -51,7 +51,7 @@ export const tour: readonly TourItem[] = [
     id: 'sessions',
     title: 'Every session, priced',
     body:
-      'A virtualised, sortable grid of every session you have ever run, with inline token bars and a duration × tokens scatter that makes outliers obvious. Filter by text, project, model or time window; export to CSV.',
+      'A virtualised, sortable grid of every session you have ever run — Claude Code and Codex side by side — with inline token bars and a duration × tokens scatter that makes outliers obvious. Filter by text, agent, project, model or time window; export to CSV.',
     image: shot('screenshots/sessions.png', 'Sessions — sortable grid with duration × tokens scatter'),
   },
   {
@@ -65,7 +65,7 @@ export const tour: readonly TourItem[] = [
     id: 'subagents',
     title: 'Sub-agent X-ray',
     body:
-      'When a session delegates to sub-agents, Argus keeps each one: the task as it was given, its tools, tokens, cost, shape and full timeline — with an at-a-glance strip that turns red where an agent failed. No more guessing what that Task call actually did.',
+      'When a session delegates to sub-agents, Argus keeps each one: the task as it was given, its tools, tokens, cost, shape and full timeline — with an at-a-glance strip that turns red where an agent failed. No more guessing what that Task or spawn_agent call actually did.',
     image: shot('screenshots/subagents.png', 'Sub-agents — task given, tools used, per-agent shape and cost'),
   },
   {
@@ -79,7 +79,7 @@ export const tour: readonly TourItem[] = [
     id: 'tools',
     title: 'Tool health',
     body:
-      "A leaderboard of every tool with its error share, calls per day stacked by tool, MCP servers, and sub-agent invocations by type. A detector re-checks error rates every 10 minutes against a 4-week baseline and files an alert when a tool's failures double.",
+      "A leaderboard of every tool with its error share, calls per day stacked by tool, MCP servers, and sub-agent invocations by type. Detectors re-check the last 7 days against a 4-week baseline every 10 minutes and file an alert when a tool's failures double, a project's weekly spend multiplies, or its prompt-cache hit rate falls off a cliff.",
     image: shot('screenshots/tools.png', 'Tools — leaderboard with error segments and calls per day'),
   },
   {

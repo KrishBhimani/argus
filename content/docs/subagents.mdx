@@ -3,13 +3,15 @@ title: "Sub-agents"
 description: "Every sub-agent a session spawned: task given, tools, tokens, cost and timeline."
 ---
 
-When a session delegates work with the `Task` or `Agent` tool, Claude Code writes each sub-agent's transcript to its own file. Argus keeps every one: what it was asked, which tools it used, what it cost, and its full timeline. Open a session and pick the **Sub-agents** tab; the tab label carries the count.
+When a session delegates work, both supported agents write each sub-agent's transcript to its own file: Claude Code for its `Task` or `Agent` tool, Codex for `spawn_agent`. Argus keeps every one: what it was asked, which tools it used, what it cost, and its full timeline. Open a session and pick the **Sub-agents** tab; the tab label carries the count.
 
 <Screenshot name="subagents" alt="The Sub-agents tab: an agent strip and list on the left, the selected agent's tiles, task, tools and shape on the right" />
 
 ## Where sub-agents come from
 
-For a session file `<id>.jsonl`, Argus looks in the sibling directory `<id>/subagents/`. Plain sub-agents are `subagents/*.jsonl`; workflow runs are `subagents/workflows/<run>/agent-*.jsonl`. Bookkeeping files like `journal.jsonl` are ignored, so they can never inflate the parent's totals.
+**Claude Code.** For a session file `<id>.jsonl`, Argus looks in the sibling directory `<id>/subagents/`. Plain sub-agents are `subagents/*.jsonl`; workflow runs are `subagents/workflows/<run>/agent-*.jsonl`. Bookkeeping files like `journal.jsonl` are ignored, so they can never inflate the parent's totals.
+
+**Codex.** A sub-agent is a separate rollout file whose first record names the thread that spawned it. It is rolled up under that thread, and a sub-agent spawned by another sub-agent is rolled up under the top-level thread, so the list is always one level deep. History the child copied from its parent is skipped. See [Supported agents](/docs/agents/) for where each agent keeps its files.
 
 Each sub-agent becomes a full session row internally, with its own turns, tool calls, tokens and cost. Those totals are added into the parent at ingest, and every list and total in the dashboard excludes sub-agent rows so nothing is counted twice.
 
@@ -29,13 +31,13 @@ The header shows `#N`, an **OK** or `3 ERR` pill, the model, a copy-id chip, and
 
 Five tiles mirror the parent's: tokens with cache-read share, estimated cost, turns with tool calls, duration, and tool errors.
 
-**Task given** is the first user message the sub-agent received, which is the instruction the parent wrote for it. This needs [transcript indexing](/docs/search/); without it the panel reads "Not available — enable transcript indexing in Settings to keep sub-agent prompts."
+**Task given** is the first user message the sub-agent received, which is the instruction the parent wrote for it. For a Codex sub-agent that is the inter-agent message delivered to the child. This needs [transcript indexing](/docs/search/); without it the panel reads "Not available — enable transcript indexing in Settings to keep sub-agent prompts."
 
 **Tools used** is the same bar-with-error-overlay form as the parent's tool mix. **Sub-agent shape** is the same tokens-per-turn minimap, and clicking a column jumps into the full timeline of that sub-agent, which follows below.
 
 ## Sub-agents in the aggregate
 
-The [Tools](/docs/tools/) page has a **Sub-agent invocations** panel that counts delegations by sub-agent type across every session in the window.
+The [Tools](/docs/tools/) page has a **Sub-agent invocations** panel that counts delegations by sub-agent type across every session in the window. Delegations that name no type are left out of it, but those sub-agents still appear on their parent's tab.
 
 <Callout>
 After turning indexing on, "Task given" for older sessions fills in during the backfill, which re-reads sub-agent files together with their parent, 200 sessions per start. It may take a restart or two.

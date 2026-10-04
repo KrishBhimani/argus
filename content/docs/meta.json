@@ -3,6 +3,7 @@
   "pages": [
     "---Start---",
     "index",
+    "agents",
     "---CLI---",
     "cli",
     "daemon",

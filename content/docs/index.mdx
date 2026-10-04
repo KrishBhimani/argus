@@ -3,14 +3,14 @@ title: "Getting started"
 description: "Install Argus, run it once, and read the dashboard footer."
 ---
 
-Argus reads the transcripts Claude Code already writes, keeps them in a local SQLite archive, and serves a dashboard on `localhost`. Nothing is uploaded and nothing is sent anywhere.
+Argus reads the transcripts Claude Code and Codex already write, keeps them in a local SQLite archive, and serves a dashboard on `localhost`. Nothing is uploaded and nothing is sent anywhere.
 
 ## What you need
 
 - Python 3.11 or newer.
-- A `~/.claude/` directory, which exists once you have used Claude Code at least once.
+- Data from at least one supported agent: a `~/.claude/` directory, which exists once you have used Claude Code, or a Codex home with a `sessions/` or `archived_sessions/` folder, which exists once you have used Codex. You need only one; Argus reads whichever it finds.
 
-Argus reads three things under `~/.claude/` and never writes there:
+For Claude Code, Argus reads three things under `~/.claude/` and never writes there:
 
 | Path | What it is |
 | --- | --- |
@@ -19,6 +19,8 @@ Argus reads three things under `~/.claude/` and never writes there:
 | `~/.claude/history.jsonl` | Every prompt you have typed, across projects |
 
 The Claude Code location is fixed at `~/.claude`. There is no flag or environment variable to point Argus somewhere else.
+
+For Codex, Argus reads `$CODEX_HOME`, or `~/.codex` when that variable is not set, and opens only the rollout files under its `sessions/` and `archived_sessions/` folders. [Supported agents](/docs/agents/) has the per-agent details.
 
 ## Install and run
 
@@ -31,16 +33,16 @@ argus start
 
 | Line | Meaning |
 | --- | --- |
-| `Detected adapters: claude_code` | It found `~/.claude/` |
+| `Detected adapters: claude_code, codex` | Which agents it found: `claude_code` for `~/.claude/`, `codex` for a Codex home. You see only the ones present |
 | `Argus: ingesting recent sessions...` | Transcripts modified in the last 30 days are being read now, before the dashboard opens |
 | `Argus: foreground ingest complete (412/1183 files), starting watcher...` | Recent files done, older ones continue in the background, and a file watcher now picks up new activity as it happens |
-| `Loaded 1 detectors: ['tool_error_rate_spike']` | The alert detector is scheduled |
+| `Loaded 3 detectors: ['cache_hit_drop', 'cost_spike', 'tool_error_rate_spike']` | The alert detectors are scheduled |
 | `Argus running at http://127.0.0.1:4242` | The dashboard is up |
 
 Press Ctrl+C to stop. Argus prints `Argus stopped.` and shuts down cleanly.
 
 <Callout title="If it exits immediately">
-`No adapter data found. Argus expects ~/.claude/ (Claude Code) to be present at minimum.` means there is no `~/.claude/` directory yet. Run Claude Code once, then try again. If the message mentions FTS5, your Python's SQLite was built without full-text search; use the official CPython build.
+`No agent data found. Argus reads Claude Code from ~/.claude/ and Codex from $CODEX_HOME or ~/.codex/ -- run one of them first.` means Argus found neither a `~/.claude/` directory nor a Codex home with a `sessions/` or `archived_sessions/` folder. Run Claude Code or Codex once, then try again. If the message mentions FTS5, your Python's SQLite was built without full-text search; use the official CPython build.
 </Callout>
 
 ## The first run
@@ -54,7 +56,7 @@ The background pass also re-reads sessions that are missing derived data, for ex
 The bottom of the dashboard sidebar has three monospace lines:
 
 1. `ingesting 412/1183` while transcripts are being read, then `tracking 180 sessions`. Before the first response it says `connecting…`.
-2. `pricing 2026-06-12`: the version of the price table used for cost estimates.
+2. `pricing 2026-10-04`: the version of the price table used for cost estimates.
 3. `foreground watcher` when this `argus start` is doing the ingestion, or `argusd daemon` when the [background daemon](/docs/daemon/) owns it.
 
 The dot next to the ARGUS wordmark is green when idle and amber and pulsing while ingesting.
@@ -70,12 +72,13 @@ Everything lives in `~/.argus/`:
 | `argus.db` (plus `-wal`, `-shm`) | The SQLite archive: sessions, turns, tool calls, alerts, and the optional search index |
 | `argusd.pid` | Present only while the background daemon runs |
 | `argusd.log` (plus `.1` to `.3`) | Daemon log, rotated at 1 MB |
+| `pricing/<date>.json` | Price tables downloaded by `argus pricing refresh`, if you ever ran it |
 | `templates/<name>/` | Templates you saved with `argus claude template create` |
 
-Every command accepts `--data-dir <path>` to use a different directory. There are no environment variables and no config file; the only persisted setting, transcript indexing, is a row inside the database.
+Every command accepts `--data-dir <path>` to use a different directory. Argus has no config file and no environment variables of its own (the only one it reads is Codex's `CODEX_HOME`, to find Codex data); the only persisted setting, transcript indexing, is a row inside the database.
 
 <Callout>
-Argus never deletes rows from its archive. Claude Code rotates its own transcripts after a while, but a session Argus has already ingested stays in `argus.db` until you run `argus wipe`.
+Argus never deletes sessions from its archive. Claude Code rotates its own transcripts after a while, but a session Argus has already ingested stays in `argus.db` until you run `argus wipe`.
 </Callout>
 
 ## Next steps

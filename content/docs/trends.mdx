@@ -17,9 +17,11 @@ Three segmented controls in the top bar:
 | Grouping | by model, by agent | by model |
 | Measure | tokens, cost | tokens |
 
+With **by agent**, the series are named by agent id: `claude_code` and `codex`.
+
 ## What the numbers are built from
 
-Every panel except one is built from turns bucketed by UTC date, and the token figure counts **only fresh input plus output**. Cache reads and writes are excluded here on purpose, because they track context size rather than work done. Week keys are ISO-style, counted from the first of January in UTC.
+Every panel except one is built from turns bucketed by your local date (the dashboard sends your time zone's UTC offset and the server buckets in it), and the token figure counts **only fresh input plus output**. Cache reads and writes are excluded here on purpose, because they track context size rather than work done. Week keys look like `2026-W14`: weeks run Sunday to Saturday and are numbered from the first of January, so they are not ISO 8601 weeks. Month keys look like `2026-04`.
 
 ## Five tiles
 
@@ -42,7 +44,7 @@ Under the tiles, a caveat line: "The current week is partial; deltas compare it 
 - **Unit cost:** dollars per million tokens per period. This moves with the model mix, not with volume.
 
 <Callout>
-Cache-read share is computed from sessions bucketed by their start time, while the other panels are built from turns. It is the one series on this page that can drift a little from the others for sessions that span a period boundary.
+Cache-read share is computed from sessions bucketed by their start time, in UTC, while the other panels are built from turns bucketed by your local date. It is the one series on this page that can drift a little from the others, for sessions that span a period boundary or start close to midnight.
 </Callout>
 
 ## Breakdown

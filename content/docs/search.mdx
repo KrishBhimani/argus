@@ -12,13 +12,13 @@ When indexing is on, every content block of a transcript becomes one row in a `t
 | Role | Source |
 | --- | --- |
 | `user` | Your messages inside a session |
-| `assistant` | Claude's replies |
-| `thinking` | Extended-thinking blocks |
+| `assistant` | The agent's replies, from Claude Code or Codex |
+| `thinking` | Claude Code's extended-thinking blocks. Codex reasoning is never stored |
 | `tool_result` | Tool output, for example what a file read or a shell command returned |
 
-Each segment is capped at 16 KB, so a huge build log does not bloat the index. Prompts from `~/.claude/history.jsonl` are stored separately, capped at 8 KB, regardless of the indexing flag.
+Each segment is capped at 16 KB, for both agents, so a huge build log does not bloat the index. Claude Code prompts from `~/.claude/history.jsonl` are stored separately, capped at 8 KB, regardless of the indexing flag. Codex's own `history.jsonl` is not read, so Codex prompts are searchable only as `user` segments inside indexed sessions. See [Supported agents](/docs/agents/) for what else Argus reads and skips for each agent.
 
-Indexing also feeds two dashboard features that otherwise stay empty: the **Task given** panel on the [Sub-agents](/docs/subagents/) tab, which is the first user message sent to a sub-agent, and the inline error text under failing tool calls in the session [Timeline](/docs/session/).
+Indexing also feeds two dashboard features that otherwise stay empty: the **Task given** panel on the [Sub-agents](/docs/subagents/) tab, which is the first user message sent to a sub-agent (for Codex, the message the parent thread sent it), and the inline error text under failing tool calls in the session [Timeline](/docs/session/).
 
 <Callout type="warning" title="Search returns nothing while indexing is off">
 The Transcripts page says only your prompts remain searchable when indexing is off. In practice the search endpoint returns zero results of every kind, prompts included, until you enable indexing.
@@ -58,7 +58,7 @@ The flag itself is a single row in the database. On a database where it was neve
 
 - Ranking is BM25 over an inverted index. There are no embeddings and no vector database.
 - Queries need at least 2 characters and run 250 ms after you stop typing.
-- Role chips choose what to search. *Your prompts*, *Your replies* and *Claude* are on by default; *Thinking* and *Tool output* are off.
+- Role chips choose what to search. *Your prompts*, *Your replies* and *Assistant* are on by default; *Thinking* and *Tool output* are off.
 - Slash commands like `/commit` are excluded from prompt results unless you toggle *Include slash commands*.
 - At most 200 results are returned per query.
 - Matches are highlighted from FTS5 snippets. The highlight markup is split into text runs, never injected as HTML.

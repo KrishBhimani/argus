@@ -3,7 +3,7 @@ title: "Tools"
 description: "Tool leaderboard, error rate, calls per day, MCP servers and sub-agent invocations."
 ---
 
-Which tools Claude called, how often they failed, and which MCP servers and sub-agent types were involved. At `/tools`; the window control defaults to `7d`.
+Which tools your agents called, how often they failed, and which MCP servers and sub-agent types were involved. At `/tools`; the window control defaults to `7d`. Claude Code and Codex calls are counted together; the page has no agent filter.
 
 <Screenshot name="tools" alt="Tools: four tiles, the tool leaderboard with error segments, tool calls per day, MCP servers and sub-agent invocations" />
 
@@ -16,7 +16,24 @@ Which tools Claude called, how often they failed, and which MCP servers and sub-
 | **Top tool** | The most-called tool and its count |
 | **Top MCP** | The busiest MCP server, or "no MCP calls" |
 
-A call is an error when its result block in the transcript was flagged as one, which is how Claude Code records a tool that returned a failure.
+What counts as an error depends on the agent:
+
+- **Claude Code:** the call's `tool_result` block in the transcript was flagged `is_error`, which is how Claude Code records a tool that returned a failure.
+- **Codex:** only explicit failure signals count: a completed action with a failed status, a `shell` command with a non-zero exit code, or an MCP result marked as an error.
+
+## Tool names
+
+Claude Code tools appear under their own names (`Bash`, `Edit`, `Read` and so on). Codex tool calls come from the actions it completed:
+
+| Name | What Codex did |
+| --- | --- |
+| `shell` | Ran a command |
+| `apply_patch` | Changed files |
+| `mcp__server__tool` | Called an MCP tool |
+| `web.search` and other extension kinds | Used a built-in extension, named by its kind |
+| `view_image` | Viewed an image |
+
+Model-side calls such as `spawn_agent` are counted under their own names too. The `exec` and `wait` code-mode wrappers are not counted, since the actions they ran already are. See [Supported agents](/docs/agents/) for more on how each agent is read.
 
 ## Tool leaderboard
 
@@ -30,12 +47,12 @@ This chart is computed in the browser from individual session timelines, so it i
 
 ## MCP servers
 
-Tools from MCP servers are named `mcp__server__tool` in transcripts. This panel groups calls by the server segment, with the same red error overlay. Elsewhere in the dashboard these tools display as `server · tool`.
+Tools from MCP servers are named `mcp__server__tool` (Argus builds the same name for Codex MCP calls). This panel groups calls by the server segment, with the same red error overlay. Elsewhere in the dashboard these tools display as `server · tool`.
 
 ## Sub-agent invocations
 
-Calls to the `Task` or `Agent` tool grouped by the sub-agent type that was requested. To see what a particular sub-agent did, open its parent session's [Sub-agents](/docs/subagents/) tab.
+Delegations grouped by the sub-agent type that was requested: Claude Code's `Task` or `Agent` tool with its `subagent_type`, and Codex's `spawn_agent` with the agent type or task name it was given. Calls that name no type, such as Claude Code's default agent, are not counted here. When there are none the panel reads "No sub-agents." To see what a particular sub-agent did, open its parent session's [Sub-agents](/docs/subagents/) tab.
 
 ## Tools feed the alert detector
 
-The one shipped detector watches per-tool error rates and raises an alert when a tool's rate doubles against its baseline. See [Alerts](/docs/alerts/).
+The `tool_error_rate_spike` detector watches per-tool error rates and raises an alert when a tool's rate doubles against its baseline. See [Alerts](/docs/alerts/).
